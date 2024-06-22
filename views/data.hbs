@@ -1,21 +1,28 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-</head>
-<body>
+  </head>
+  <body>
 
     <ul class="main">
-        {{!-- {{#each for data.crops as |d|}}
-        <li class="item">{{d.crop_name}}</li> --}}
-        <li class="item">{data.}</li>
+      {{#each data.crops as |crop|}}
+        <li class="item">{{crop.crop_name}}</li>
+        <ul>
+          {{#each crop.features as |f|}}
+            <li class="sub-item">{{f}}</li>
+          {{/each}}
+        </ul>
+      {{/each}}
     </ul>
-    {{/each}}
 
-    
+    <h3>Additional Considerations:</h3>
+    <ul>
+      {{#each data.AdditionalConsiderations as |consideration|}}
+        <li>{{consideration}}</li>
+      {{/each}}
+    </ul>
 
-    
-</body>
+  </body>
 </html>
