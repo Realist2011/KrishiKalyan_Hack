@@ -69,7 +69,6 @@ app.post("/crop", (req, res) => {
     //   console.log(text);
     c = JSON.parse(text);
     console.log(c);
-
     res.render("data", { data: c });
   }
   run();
