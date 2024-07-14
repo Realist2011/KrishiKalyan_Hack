@@ -14,7 +14,6 @@ const genAI = new GoogleGenerativeAI(process.env.API_KEY);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
 app.set("view engine", "hbs");
 
 // ...
@@ -27,37 +26,46 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/crop", (req, res) => {
   const { soil, location, temperature } = req.body;
+  console.log(soil,location,temperature)
   let c;
 
   async function run() {
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
     const parts = [
       {
-        text: `On the basis of the given features:
-
-1. **Crop Suitability Assessment**
-
-   Given that the location of one’s cultivating land is in ${location}, the soil type is ${soil}, along with a temperature range of ${temperature} in Celsius. Suggest suitable crops that can be grown in different seasons based on the following:
-
-   - Pre-determined crop suitability guidelines for different soil types and climates.
-   - Historical agricultural data and best practices for the region.
-   - Potential market demand for specific crops.
-
-   Provide the result as a JSON object in the following format: 
-{
-    "crops": [
-        {
-            "crop_name": "String",
-            "features": ["String","string2",]
-        },
-       ],
-    "AdditionalConsiderations": ["String","string2"]
-}
-
-   Ensure that there are no errors in the response JSON Object and try to make it as parsable as possible.
-   There should be no extraneous punctuations attached to the JSON Object.
-
-    `,
+        text:
+`Based on the given features, provide a crop suitability assessment in a clear bullet-point format without using bold symbols. The location is ${location}, the soil type is ${soil}, and the temperature range is ${temperature} Celsius. The output should include suitable crops for different seasons, historical agricultural data, best practices, and potential market demand. 
+      Strictly Follow the Given Format Don't Improvise according to you and Most Importantly Don't use any type of symbols specially **.
+      Format:
+      - Pre-determined crop suitability guidelines for different soil types and climates:
+      *leave a line*
+        - Soil type: ${soil}
+        *leave a line*
+        - Climate: Temperature range of ${temperature} degrees Celsius
+        *leave a line*
+        - Suitable crops:
+          - Summer (March-June):
+            - Vegetables: 
+            - Fruits: 
+            - Field crops: 
+          - Rainy season (July-September):
+            - Vegetables: 
+            - Fruits: 
+          - Winter (October-February):
+            - Vegetables: 
+            - Fruits: 
+            - Field crops: 
+      *leave a line*
+      - Historical agricultural data and best practices for the region:
+        - 
+      *leave a line*
+        - Potential market demand for specific crops:
+        - 
+      *leave a line*
+        - Recommended crops for cultivation in ${location}:
+        - Summer: 
+        - Rainy season: 
+        - Winter:`,
       },
     ];
 
@@ -67,9 +75,9 @@ app.post("/crop", (req, res) => {
     const response = await result.response;
     const text = response.text();
     //   console.log(text);
-    c = JSON.parse(text);
-    console.log(c);
-    res.render("data", { data: c });
+    // c = JSON.parse(text);
+    // console.log(c);
+    res.render("data", { data: text });
   }
   run();
 });
