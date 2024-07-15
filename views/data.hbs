@@ -6,8 +6,8 @@
   </head>
   <body>
     
-    <textarea name="main" readonly style="border:none; resize: none; width:90vw; height:90vh; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;" id="">{{data}}</textarea>
-    {{!-- <ul class="main">
+    {{!-- <textarea name="main" readonly style="border:none;pointer-events:none; resize: none; width:90vw; height:90vh; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">{{data}}</textarea> --}}
+    <ul class="main">
        {{#each data.crops as |crop|}}
         <li class="item">{{crop.crop_name}}</li>
         <ul>
@@ -16,14 +16,14 @@
           {{/each}}
         </ul>
       {{/each}} 
-    </ul> --}}
+    </ul>
 
-    {{!-- <h3>Additional Considerations:</h3>
+    <h3>Additional Considerations:</h3>
     <ul>
       {{#each data.AdditionalConsiderations as |consideration|}}
         <li>{{consideration}}</li>
       {{/each}}
-    </ul> --}}
+    </ul>
 
   </body>
 </html>
