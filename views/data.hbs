@@ -1,29 +1,495 @@
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-  </head>
-  <body>
-    
-    {{!-- <textarea name="main" readonly style="border:none;pointer-events:none; resize: none; width:90vw; height:90vh; font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">{{data}}</textarea> --}}
-    <ul class="main">
-       {{#each data.crops as |crop|}}
-        <li class="item">{{crop.crop_name}}</li>
-        <ul>
-          {{#each crop.features as |f|}}
-            <li class="sub-item">{{f}}</li>
-          {{/each}}
-        </ul>
-      {{/each}} 
-    </ul>
 
-    <h3>Additional Considerations:</h3>
-    <ul>
-      {{#each data.AdditionalConsiderations as |consideration|}}
-        <li>{{consideration}}</li>
-      {{/each}}
-    </ul>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Crop Suitability Assessment</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bona+Nova+SC:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+        <style>
+            @import url('https://fonts.googleapis.com/css2?family=Anek+Devanagari:wght@100..800&family=Bebas+Neue&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto+Slab:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
-  </body>
+            html,
+            body {
+                font-family: "Bona Nova SC", serif;
+                margin: 0;
+                padding: 0;font-family: Georgia, serif;
+            }
+
+            body {
+                display: flex;
+                min-height: 100vh;
+                font-family: 'Roboto', sans-serif;
+            }
+
+            .sidebar {
+                font-family: 'Montserrat', sans-serif;
+                width: 230px;
+                background-color: #f4f4f4;
+                padding: 20px;
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+                height: 100%;
+                position: fixed;
+                top: 0;
+                left: 0;
+                overflow-y: auto;
+
+                .head {
+                    font-weight: bolder;
+                    font-size: 1.1rem;
+                }
+
+                margin-right: 20px;
+            }
+
+            .sidebar h2 {
+                color: #4CAF50;
+                font-size: 1.5em;
+                margin-bottom: 12px;
+                padding-left: 8px;
+            }
+
+            .sidebar a {
+                display: block;
+                color: #333;
+                text-decoration: none;
+                padding: 6px;
+                border-radius: 5px;
+            }
+
+            .sidebar a:hover {
+                background-color: #e0e0e0;
+            }
+
+            .sidebar h3 {
+                font-size: 1.3em;
+                margin-top: 20px;
+                margin-bottom: 0px;
+                padding-bottom: 0px;
+            }
+
+            .sidebar .crops-list {
+                list-style: none;
+                padding: 0;
+            }
+
+            .sidebar .crops-list li {
+                margin: 2px 0;
+            }
+
+            .sidebar .crops-list .crop-link {
+                text-decoration: none;
+                color: #333;
+            }
+
+            .sidebar .crops-list .crop-link:hover {
+                color: green;
+            }
+
+            .container {
+                margin-left: 270px;
+                background-color: #C1F2B0;
+                /* Space for sidebar */
+                padding: 20px;
+                border-radius: 15px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                max-width: calc(100% - 290px);
+                width: calc(100% - 40px);
+                display: flex;
+                flex-direction: column;
+                gap: 40px;
+            }
+
+            .main-content {
+                display: flex;
+                flex-direction: column;
+                gap: 40px;
+                background-color: #C1F2B0;
+            }
+
+            h1 {
+                color: black;
+                margin-top: 20px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: -2px;
+                font-family: 'Montserrat', sans-serif;
+            }
+
+            .crops {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                list-style-type: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .crops .item {
+                padding: 15px;
+                border-radius: 5px;
+                font-size: 1.2em;
+                text-align: left;
+                flex: 1 1 calc(33% - 20px);
+                box-sizing: border-box;
+                border: solid rgba(6, 41, 6, 0.64) 1px;
+                background-color: white;
+            }
+
+            .crops .item:hover {
+                cursor: pointer;
+            }
+
+            .crops .crop-name {
+                color: #4CAF50;
+                font-weight: bold;
+                text-align: center;
+                font-size: 1.3rem;
+            }
+
+            .crops .sub-item {
+                background-color: #e9e9e97f;
+                margin: 5px 0;
+                padding: 10px;
+                border-radius: 5px;
+                font-size: 0.88em;
+            }
+
+            .additional-considerations {
+                padding: 20px;
+                border: solid rgba(6, 41, 6, 0.64) 1px;
+                background-color: white;
+                border-radius: 10px;
+                font-size: 1.1em;
+                text-align: left;
+            }
+
+            .additional-considerations h3 {
+                color: #4CAF50;
+                font-size: 1.5em;
+                font-weight: bold;
+                padding-bottom: 8px;
+                margin-top: 5px;
+            }
+
+            .additional-considerations p {
+                margin-top: 10px;
+                color: #666;
+                font-size: 1.0em;
+            }
+
+            .additional-considerations ul {
+                padding: 0;
+                margin: 0;
+                list-style-type: none;
+            }
+
+            .additional-considerations li {
+                margin: 10px 0;
+                padding: 10px;
+                border-radius: 5px; 
+                background-color: #e9e9e97f;
+            }
+
+            .irrigation {
+                padding: 20px;
+                border-radius: 10px;
+                font-size: 1.12em;
+                text-align: left;
+                margin-top: 20px;
+                border: solid rgba(6, 41, 6, 0.64) 1px;
+                background-color: white;
+            }
+
+            .irrigation h3 {
+                color: #4CAF50;
+                font-size: 1.5em;
+                font-weight: bold;
+                padding-bottom: 8px;
+                margin-top: 5px;
+            }
+
+            .irrigation .schedule {
+                margin-bottom: 20px;
+            }
+
+            .irrigation .schedule p {
+                margin: 5px 0;
+            }
+
+            .resource-management {
+                padding: 20px;
+                border-radius: 10px;
+                font-size: 1.08em;
+                text-align: left;
+                border: solid rgba(6, 41, 6, 0.64) 1px;
+                background-color: white;
+            }
+
+            .resource-management h3 {
+                color: #4CAF50;
+                font-size: 1.5em;
+                font-weight: bold;
+                padding-bottom: 8px;
+                margin-top: 5px;
+            }
+
+            .resource-management ul {
+                padding: 0;
+                margin: 0;
+                list-style-type: none;
+            }
+
+            .resource-management li {
+                margin: 10px 0;
+                padding: 10px;
+                border-radius: 5px;
+                background-color: #e9e9e97f;
+            }
+
+            .popup {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: #fff;
+                padding: 20px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+                border-radius: 10px;
+                z-index: 1000;
+                max-width: 500px;
+                width: 80%;
+            }
+
+            .popup h3 {
+                color: #4CAF50;
+                font-size: 1.5em;
+                font-weight: bold;
+                padding-bottom: 8px;
+                margin-top: 5px;
+                text-align: center;
+            }
+
+            .popup p {
+                margin-top: 10px;
+                color: #666;
+                font-size: 1.1em;
+            }
+
+            .popup .close-btn {
+                display: block;
+                margin: 20px auto 0;
+                padding: 10px 20px;
+                background-color: #4CAF50;
+                color: white;
+                text-align: center;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+
+            .center-heading {
+                color: black;
+                font-weight: bold;
+                margin-top: 0px;
+                text-align: center;
+                font-family: 'Montserrat', sans-serif;
+                font-size: 2rem;
+                margin-bottom: -15px;
+            }
+
+            @media (max-width: 768px) {
+                .crops .item {
+                    flex: 1 1 calc(100% - 20px);
+                }
+
+                .container {
+                    flex-direction: column;
+                    margin-left: 0;
+                    width: 100%;
+                }
+
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                    box-shadow: none;
+                }
+
+                .sidebar a {
+                    display: inline-block;
+                    margin: 5px 0;
+                }
+                .VIpgJd-ZVi9od-ORHb-bN97Pc{
+                    margin-top: -40px;
+                }
+                .translated-ltr{
+                    margin-top: -40px;
+                }
+                .VIpgJd-ZVi9od-ORHb-OEVmcd{
+                    display: none;
+                    margin-top: -20px;
+                }
+                .VIpgJd-ZVi9od-l4eHX-hSRGPd{
+                    display: none !important;
+                }
+                .goog-te-gadget{
+                    color: transparent !important;
+                }
+                
+            }
+        </style>
+        <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({ pageLanguage: 'en' }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    </head>
+
+    <body class="body">
+        <div class="sidebar">
+            <h2>Navigation</h2>
+            <h3><a href="#crop-suitability">Crop Suitability Assessment</a></h3>
+            <ul class="crops-list">
+                {{#each cropData.crops}}
+                <li>
+                    <a href="#{{this.crop_name}}" class="crop-link">{{this.crop_name}}</a>
+                </li>
+                {{/each}}
+            </ul>
+            <p class="head"><a href="#additional-considerations">Additional Considerations</a></p>
+            <p class="head"><a href="#irrigation-schedule">Irrigation Schedule</a></p>
+            <p class="head"><a href="#resource-management">Resource Management</a></p>
+        </div>
+
+        <div class="container">
+            <div id="google_translate_element" style="position: absolute; left:88vw"></div>
+            <div class="main-content">
+                <h1>Crop Suitability Assessment</h1>
+
+                <div id="crop-suitability" class="crops">
+                    {{#each cropData.crops}}
+                    <div class="item" id="{{this.crop_name}}">
+                        <div class="crop-name">{{this.crop_name}}</div>
+                        <div class="sub-item-list">
+                            {{#each this.features}}
+                            <div class="sub-item">{{this}}</div>
+                            {{/each}}
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                <h3 class="center-heading"> Additional Considerations</h3>
+
+                <div id="additional-considerations" class="additional-considerations">
+
+                    <p>{{cropData.additionalConsiderationsSummary}}</p>
+                    <ul>
+                        {{#each cropData.AdditionalConsiderations}}
+                        <li>{{this}}</li>
+                        {{/each}}
+                    </ul>
+                </div>
+                <h3 class="center-heading"> Irrigation Schedule</h3>
+                <div id="irrigation-schedule" class="irrigation">
+
+                    {{#each irrigationData}}
+                    <div class="schedule">
+                        <strong>Crop Name:</strong> {{this.crop_name}}<br>
+                        <p><strong>Watering Frequency:</strong> {{this.irrigation_schedule.watering_frequency}}</p>
+                        <p><strong>Water Quantity Per Cycle:</strong>
+                            {{this.irrigation_schedule.water_quantity_per_cycle}}</p>
+                        <p><strong>Adjustments Based on Weather:</strong> {{#each
+                            this.irrigation_schedule.adjustments_based_on_weather}}{{this}}{{#unless @last}},
+                            {{/unless}}{{/each}}</p>
+                    </div>
+                    {{/each}}
+                </div>
+
+                <h3 class="center-heading">Resource Management Tips</h3>
+                <div id="resource-management" class="resource-management">
+                    <ul>
+                        {{#each resourceManagementData.resource_management_tips}}
+                        <li>
+                            <strong>{{this.topic}}:</strong>
+                            <ul>
+                                {{#each this.tips}}
+                                <li>{{this}}</li>
+                                {{/each}}
+                            </ul>
+                        </li>
+                        {{/each}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="overlay"></div>
+        <div class="popup">
+            <h3>Irrigation Schedule</h3>
+            <p id="irrigationDetails"></p>
+            <button class="close-btn">Close</button>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const cropItems = document.querySelectorAll('.crops .item');
+                const popup = document.querySelector('.popup');
+                const overlay = document.querySelector('.overlay');
+                const irrigationDetails = document.getElementById('irrigationDetails');
+                const closeButton = document.querySelector('.close-btn');
+
+                cropItems.forEach((item) => {
+                    item.addEventListener('click', () => {
+                        const cropName = item.querySelector('.crop-name').textContent;
+                        const irrigation = Array.from(document.querySelectorAll('.irrigation .schedule')).find(schedule =>
+                            schedule.querySelector('strong').textContent.includes(cropName)
+                        );
+
+                        if (irrigation) {
+                            irrigationDetails.innerHTML = irrigation.innerHTML;
+                            popup.style.display = 'block';
+                            overlay.style.display = 'block';
+                        }
+                    });
+                });
+
+                closeButton.addEventListener('click', () => {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                });
+
+                overlay.addEventListener('click', () => {
+                    popup.style.display = 'none';
+                    overlay.style.display = 'none';
+                });
+
+                document.querySelectorAll('.sidebar a').forEach(anchor => {
+                    anchor.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = anchor.getAttribute('href').substring(1);
+                        document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+                    });
+                });
+            });
+        </script>
+
+    </body>
+
 </html>
